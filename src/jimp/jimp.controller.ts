@@ -141,4 +141,33 @@ export class JimpController {
       Jimp.RESIZE_BEZIER,
     );
   }
+
+  @Get('circle')
+  async circle(@Res() res: Response) {
+    return await this.jimpService.circle(
+      res,
+      './src/image/6.png' /*{
+      radius: 500,
+      x: 250,
+      y: 250,
+    }*/,
+    );
+  }
+
+  @Get('shadow')
+  async shadow(@Res() res: Response) {
+    return await this.jimpService.shadow(
+      res,
+      './src/image/6.png' /*{ opacity: 0.8, size: 1.2, blur: 10, x: -75, y: -75 }*/,
+    );
+  }
+
+  @Get('threshold')
+  async threshold(@Res() res: Response) {
+    return await this.jimpService.threshold(res, './src/image/6.png', {
+      max: 200,
+      replace: 200,
+      autoGreyscale: false,
+    });
+  }
 }
