@@ -25,7 +25,9 @@
     "@nestjs/platform-express": "^9.0.0",
     "jimp": "^0.22.10",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.2.0"
+    "rembg-node": "^2.0.1",
+    "rxjs": "^7.2.0",
+    "sharp": "^0.30.7"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",

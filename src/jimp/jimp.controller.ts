@@ -86,7 +86,11 @@ export class JimpController {
 
   @Get('mask')
   async mask(@Res() res: Response) {
-    return await this.jimpService.mask(res, './src/image/6.png');
+    return await this.jimpService.mask(
+      res,
+      './src/image/C/Peppa 1.png',
+      './src/image/6.png',
+    );
   }
 
   @Get('normalize')
@@ -169,5 +173,15 @@ export class JimpController {
       replace: 200,
       autoGreyscale: false,
     });
+  }
+
+  @Get('autocrop')
+  async autocrop(@Res() res: Response) {
+    return await this.jimpService.autocrop(res, './src/image/C/Peppa 1.png');
+  }
+
+  @Get('rmbg')
+  async removeBackground(@Res() res: Response) {
+    return await this.jimpService.removeBackground(res, './src/image/1.jpg');
   }
 }

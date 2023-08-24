@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import Jimp from 'jimp';
+import { Rembg } from 'rembg-node';
+import sharp from 'sharp';
 
 @Injectable()
 export class JimpService {
@@ -123,9 +125,13 @@ export class JimpService {
     return res.send(imgBuffer);
   }
 
-  async mask(res: any, url: string) {
-    console.log(res, url);
-    return;
+  async mask(res: any, url: string, mask: string) {
+    const image = await Jimp.read(url);
+    const maskImage = await Jimp.read(mask);
+    image.mask(maskImage, 400, 400);
+    const imgBuffer = await image.getBufferAsync(Jimp.MIME_PNG);
+    res.set('Content-Type', Jimp.MIME_PNG);
+    return res.send(imgBuffer);
   }
 
   //Chuẩn hóa màu sắc của hình ảnh bằng cách tính toán biểu đồ.
@@ -238,5 +244,26 @@ export class JimpService {
     const imgBuffer = await image.getBufferAsync(Jimp.MIME_PNG);
     res.set('Content-Type', Jimp.MIME_PNG);
     return res.send(imgBuffer);
+  }
+
+  //cắt bỏ đi các khoảng trống dư
+  async autocrop(res: any, url: string) {
+    const image = await Jimp.read(url);
+    image.autocrop();
+    const imgBuffer = await image.getBufferAsync(Jimp.MIME_PNG);
+    res.set('Content-Type', Jimp.MIME_PNG);
+    return res.send(imgBuffer);
+  }
+
+  async removeBackground(res: any, url: string) {
+    const input = sharp(url);
+    const rembg = new Rembg({
+      logging: true,
+    });
+    const output = await rembg.remove(input);
+
+    await output.webp().toFile('test-output.webp');
+    await output.trim().webp().toFile('test-output-trimmed.webp');
+    res.send('1');
   }
 }
