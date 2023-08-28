@@ -11,15 +11,6 @@ export class JimpController {
     return await this.jimpService.blur(res, 'src/image/6.png', 5);
   }
 
-  @Get('/blit')
-  async blit(@Res() res: Response) {
-    return await this.jimpService.blit(res, './src/image/C/Peppa 1.png', [
-      './src/image/C/Eyes/eyes 1.png',
-      './src/image/C/Mouth/mouth 1.png',
-      './src/image/C/Items/item 1.png',
-    ]);
-  }
-
   @Get('color')
   async color(@Res() res: Response) {
     return await this.jimpService.color(res, './src/image/6.png', [

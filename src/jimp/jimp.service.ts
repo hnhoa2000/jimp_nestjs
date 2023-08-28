@@ -17,15 +17,13 @@ export class JimpService {
   }
 
   //chồng (blit) một hình ảnh lên trên một hình ảnh khác
-  async blit(res: any, destination: string, arrayImg: string[]) {
-    const image = await Jimp.read(destination);
-    for (let index = 0; index < arrayImg.length; index++) {
+  async blit(arrayImg: string[], name: string) {
+    const image = await Jimp.read(arrayImg[0]);
+    for (let index = 1; index < arrayImg.length; index++) {
       const img = await Jimp.read(arrayImg[index]);
       image.blit(img, 0, 0);
     }
-    const imgBuffer = await image.getBufferAsync(Jimp.MIME_PNG);
-    res.set('Content-Type', Jimp.MIME_PNG);
-    return res.send(imgBuffer);
+    image.write(`public/output/${name}.png`);
   }
 
   //Thay đổi màu của ảnh
