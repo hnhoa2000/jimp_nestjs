@@ -4,6 +4,7 @@ import { JimpService } from './jimp.service';
 
 @Module({
   controllers: [JimpController],
-  providers: [JimpService]
+  providers: [JimpService],
+  exports: [JimpService],
 })
 export class JimpModule {}
