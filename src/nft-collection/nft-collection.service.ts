@@ -1,6 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { readdir } from 'node:fs/promises';
 import { JimpService } from 'src/jimp/jimp.service';
+
+import * as fs from 'fs/promises';
+import * as path from 'path';
 
 @Injectable()
 export class NftCollectionService {
@@ -15,6 +18,8 @@ export class NftCollectionService {
   removeFileExtension(file: string) {
     return file.slice(0, file.lastIndexOf('.'));
   }
+  private readonly logger = new Logger(NftCollectionService.name)
+  private directoryPath = 'public/image/C';
 
   async createArray() {
     const arrayResult = [];
@@ -63,5 +68,32 @@ export class NftCollectionService {
       }
     }
     return arrayResult;
+  }
+
+  async readListFolder(parentFolder: string) {
+    try {
+      const files = await fs.readdir(parentFolder);
+      const subFolders = await Promise.all(
+        files.map(async (file) => {
+          const fullPath = path.join(parentFolder, file);
+          const stat = await fs.stat(fullPath);
+          if (stat.isDirectory()) {
+            return file;
+          }
+        }),
+      );
+      return subFolders.filter(Boolean);
+    } catch (err) {
+      this.logger.error('Error reading directory:', err);
+      throw err;
+    }
+  }
+
+  async blitVariants(rare: number){
+    const parentFolder = path.join(__dirname, '../../public/image');
+    const subFolders = await this.readListFolder(parentFolder);
+    console.log('subFolder: ', subFolders[rare])
+    const a = await this.readListFolder(parentFolder.concat('/' + subFolders[rare]));
+    console.log(`Blit variants: ${a}`)
   }
 }
