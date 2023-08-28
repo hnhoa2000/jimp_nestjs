@@ -1,6 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
 import { NftCollectionService } from './nft-collection.service';
-import path from 'path';
 
 @Controller('nft-collection')
 export class NftCollectionController {
@@ -13,7 +12,7 @@ export class NftCollectionController {
 
   @Get('/abc')
   async abc() {
-    const rare: number = 0
+    const rare = 0;
     return this.nftCollectionService.blitVariants(rare);
   }
 }

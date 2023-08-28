@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { readdir } from 'node:fs/promises';
 import { JimpService } from 'src/jimp/jimp.service';
-
 import * as fs from 'fs/promises';
 import * as path from 'path';
 
@@ -18,7 +17,7 @@ export class NftCollectionService {
   removeFileExtension(file: string) {
     return file.slice(0, file.lastIndexOf('.'));
   }
-  private readonly logger = new Logger(NftCollectionService.name)
+  private readonly logger = new Logger(NftCollectionService.name);
   private directoryPath = 'public/image/C';
 
   async createArray() {
@@ -31,15 +30,15 @@ export class NftCollectionService {
       for (let j = 4; j < arrayEyes.length; j++) {
         for (let k = 4; k < arrayItems.length; k++) {
           for (let l = 4; l < arrayMouth.length; l++) {
-            const dna = `0${this.removeFileExtension(
+            const dna = `${this.removeFileExtension(
               this.base,
-            )}_1${this.removeFileExtension(
+            )}${this.removeFileExtension(
               arrayBackground[i],
-            )}_2${this.removeFileExtension(
+            )}${this.removeFileExtension(
               arrayEyes[j],
-            )}_3${this.removeFileExtension(
+            )}${this.removeFileExtension(
               arrayItems[k],
-            )}_4${this.removeFileExtension(arrayMouth[l])}`;
+            )}${this.removeFileExtension(arrayMouth[l])}`;
             const object = {
               base: this.base,
               basePath: this.basePath,
@@ -89,11 +88,13 @@ export class NftCollectionService {
     }
   }
 
-  async blitVariants(rare: number){
+  async blitVariants(rare: number) {
     const parentFolder = path.join(__dirname, '../../public/image');
     const subFolders = await this.readListFolder(parentFolder);
-    console.log('subFolder: ', subFolders[rare])
-    const a = await this.readListFolder(parentFolder.concat('/' + subFolders[rare]));
-    console.log(`Blit variants: ${a}`)
+    console.log('subFolder: ', subFolders[rare]);
+    const a = await this.readListFolder(
+      parentFolder.concat('/' + subFolders[rare]),
+    );
+    console.log(`Blit variants: ${a}`);
   }
 }

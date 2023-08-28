@@ -23,7 +23,8 @@ export class JimpService {
       const img = await Jimp.read(arrayImg[index]);
       image.blit(img, 0, 0);
     }
-    image.write(`public/output/${name}.png`);
+    const path = `public/output/${name}.png`;
+    await image.writeAsync(path);
   }
 
   //Thay đổi màu của ảnh
