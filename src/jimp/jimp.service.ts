@@ -25,6 +25,7 @@ export class JimpService {
     }
     const path = `public/output/${name}.png`;
     await image.writeAsync(path);
+    return path;
   }
 
   //Thay đổi màu của ảnh

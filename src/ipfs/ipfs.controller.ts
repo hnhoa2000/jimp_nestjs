@@ -7,8 +7,6 @@ export class IpfsController {
 
   @Get()
   async test() {
-    return this.ipfsService.test(
-      'C:/Users/Administrator/Pictures/midjourney/1.png',
-    );
+    return this.ipfsService.test('public/image/1_C/Peppa1.png');
   }
 }

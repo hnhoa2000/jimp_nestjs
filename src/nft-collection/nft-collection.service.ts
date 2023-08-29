@@ -1,72 +1,48 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { readdir } from 'node:fs/promises';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { JimpService } from 'src/jimp/jimp.service';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+import { InjectRepository } from '@nestjs/typeorm';
+import { MongoRepository } from 'typeorm';
+import { NftCollectionEntity } from './entity/nft-collection.entity';
 
 @Injectable()
 export class NftCollectionService {
-  constructor(private readonly jimpService: JimpService) { }
-  private BackgroundPath = 'public/image/C/Background';
-  private EyesPath = 'public/image/C/Eyes';
-  private ItemsPath = 'public/image/C/Items';
-  private MouthPath = 'public/image/C/Mouth';
-  private base = 'Peppa1.png';
-  private basePath = 'public/image/C/Peppa1.png';
-
-  removeFileExtension(file: string) {
-    return file.slice(0, file.lastIndexOf('.'));
-  }
+  constructor(
+    @InjectRepository(NftCollectionEntity)
+    private readonly nftCollectionEntity: MongoRepository<NftCollectionEntity>,
+    private readonly jimpService: JimpService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+  ) {}
   private readonly logger = new Logger(NftCollectionService.name);
-  private directoryPath = 'public/image/C';
 
-  async createArray() {
-    const arrayResult = [];
-    const arrayBackground = await readdir(this.BackgroundPath);
-    const arrayEyes = await readdir(this.EyesPath);
-    const arrayItems = await readdir(this.ItemsPath);
-    const arrayMouth = await readdir(this.MouthPath);
-    for (let i = 3; i < arrayBackground.length; i++) {
-      for (let j = 4; j < arrayEyes.length; j++) {
-        for (let k = 4; k < arrayItems.length; k++) {
-          for (let l = 4; l < arrayMouth.length; l++) {
-            const dna = `${this.removeFileExtension(
-              this.base,
-            )}${this.removeFileExtension(
-              arrayBackground[i],
-            )}${this.removeFileExtension(
-              arrayEyes[j],
-            )}${this.removeFileExtension(
-              arrayItems[k],
-            )}${this.removeFileExtension(arrayMouth[l])}`;
-            const object = {
-              base: this.base,
-              basePath: this.basePath,
-              background: arrayBackground[i],
-              backgroundPath: `${this.BackgroundPath}/${arrayBackground[i]}`,
-              eyes: arrayEyes[j],
-              eyesPath: `${this.EyesPath}/${arrayEyes[j]}`,
-              items: arrayItems[k],
-              itemsPath: `${this.ItemsPath}/${arrayItems[k]}`,
-              mouth: arrayMouth[l],
-              mouthPath: `${this.MouthPath}/${arrayMouth[l]}`,
-              dna,
-            };
-            arrayResult.push(object);
-
-            //save image
-            const arrayImg = [];
-            arrayImg.push(object.backgroundPath);
-            arrayImg.push(this.basePath);
-            arrayImg.push(object.eyesPath);
-            arrayImg.push(object.mouthPath);
-            arrayImg.push(object.itemsPath);
-            await this.jimpService.blit(arrayImg, dna);
-          }
-        }
-      }
-    }
-    return arrayResult;
+  async test(data: any) {
+    const nftCollection = await this.nftCollectionEntity.findOneBy({
+      tokenId: data.tokenId,
+    });
+    if (nftCollection) return 'tokenId is exist';
+    const totalVariants: any = await this.cacheManager.get('totalVariants');
+    const randomNumber = Math.floor(Math.random() * totalVariants.length);
+    const order = ['Background', 'C', 'Eye', 'Mouth', 'Item'];
+    const arrayPath = order.map(
+      (item) =>
+        totalVariants[randomNumber].layers.find((layer) => layer.item === item)
+          .path,
+    );
+    const path = await this.jimpService.blit(
+      arrayPath,
+      totalVariants[randomNumber].dna,
+    );
+    const newNftCollection = new NftCollectionEntity();
+    newNftCollection.dna = totalVariants[randomNumber].dna;
+    newNftCollection.image = path;
+    newNftCollection.tokenId = data.tokenId;
+    newNftCollection.metadata = data.metadata;
+    newNftCollection.type = data.type;
+    await this.nftCollectionEntity.save(newNftCollection);
+    return path;
   }
 
   async readListFolder(parentFolder: string) {
@@ -167,6 +143,7 @@ export class NftCollectionService {
       }),
     );
 
+    await this.cacheManager.set('totalVariants', totalVariants, 10000000);
     return {
       total: totalVariants.length,
       variants: totalVariants,

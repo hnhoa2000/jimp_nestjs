@@ -1,17 +1,17 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { NftCollectionService } from './nft-collection.service';
 
 @Controller('nft-collection')
 export class NftCollectionController {
   constructor(private readonly nftCollectionService: NftCollectionService) {}
 
-  @Get()
-  async createArray() {
-    return this.nftCollectionService.createArray();
-  }
-
   @Get('/abc')
   async abc() {
     return this.nftCollectionService.blitVariants();
+  }
+
+  @Post('/test')
+  async test(@Body() data: any) {
+    return this.nftCollectionService.test(data);
   }
 }
