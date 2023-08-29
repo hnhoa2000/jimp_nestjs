@@ -12,7 +12,6 @@ export class NftCollectionController {
 
   @Get('/abc')
   async abc() {
-    const rare = 0;
     return this.nftCollectionService.blitVariants();
   }
 }

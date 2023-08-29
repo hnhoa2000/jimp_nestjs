@@ -24,10 +24,12 @@
     "@nestjs/core": "^9.0.0",
     "@nestjs/platform-express": "^9.0.0",
     "jimp": "^0.22.10",
+    "node-fetch": "^3.3.2",
     "reflect-metadata": "^0.1.13",
     "rembg-node": "^2.0.1",
     "rxjs": "^7.2.0",
-    "sharp": "^0.30.7"
+    "sharp": "^0.30.7",
+    "web3.storage": "^4.5.5"
   },
   "devDependencies": {
     "@nestjs/cli": "^9.0.0",

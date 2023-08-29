@@ -108,54 +108,68 @@ export class NftCollectionService {
   }
 
   async blitVariants() {
-    let totalVariants: any[] = [];
+    const totalVariants: any[] = [];
 
     const bases = await this.readListFolder('nft-materials');
-    await Promise.all(bases.map(async (base) => {
-      const items = await this.readListFolder(`nft-materials/${base}`);
-      const basePath = `nft-materials/${base}/base.png`;
-      let variants: any[] = [];
+    await Promise.all(
+      bases.map(async (base) => {
+        const items = await this.readListFolder(`nft-materials/${base}`);
+        const basePath = `nft-materials/${base}/base.png`;
+        const variants: any[] = [];
 
-      const inspectItem = async (params: { index: number, prevData: { item: string, piece: string, path: string }[] }) => {
-        if (!items[params.index]) return variants.push({
-          dna: `base-${base}@${params.prevData.reduce((output, layer) => {
-            output += `@${layer.piece}`;
-            return output
-          }, '').replace('@', '')}`,
-          layers: [
-            { item: base, piece: base, path: basePath },
-            ...params.prevData,
-          ],
-          properties: {
-            base,
-            ...params.prevData.reduce((output, layer) => {
-              output[layer.item.toLowerCase()] = layer.piece;
-              return output;
-            }, {} as any)
+        const inspectItem = async (params: {
+          index: number;
+          prevData: { item: string; piece: string; path: string }[];
+        }) => {
+          if (!items[params.index])
+            return variants.push({
+              dna: `base-${base}@${params.prevData
+                .reduce((output, layer) => {
+                  output += `@${layer.piece}`;
+                  return output;
+                }, '')
+                .replace('@', '')}`,
+              layers: [
+                { item: base, piece: base, path: basePath },
+                ...params.prevData,
+              ],
+              properties: {
+                base,
+                ...params.prevData.reduce((output, layer) => {
+                  output[layer.item.toLowerCase()] = layer.piece;
+                  return output;
+                }, {} as any),
+              },
+            });
+          const pieces = await this.readFilesInFolder(
+            `nft-materials/${base}/${items[params.index]}`,
+          );
+          for (let i = 0; i < pieces.length; i++) {
+            const piece = pieces[i];
+            const item = items[params.index];
+            await inspectItem({
+              index: params.index + 1,
+              prevData: [
+                ...params.prevData,
+                {
+                  item: items[params.index],
+                  piece: `${piece.split('.')[0]}`,
+                  path: `nft-materials/${base}/${item}/${piece}`,
+                },
+              ],
+            });
           }
-        });
-        const pieces = await this.readFilesInFolder(`nft-materials/${base}/${items[params.index]}`);
-        for (let i = 0; i < pieces.length; i++) {
-          const piece = pieces[i];
-          const item = items[params.index];
-          await inspectItem({
-            index: params.index + 1, prevData: [...params.prevData, {
-              item: items[params.index],
-              piece: `${piece.split('.')[0]}`,
-              path: `nft-materials/${base}/${item}/${piece}`
-            }]
-          });
-        }
-      }
+        };
 
-      await inspectItem({ index: 0, prevData: [] });
+        await inspectItem({ index: 0, prevData: [] });
 
-      totalVariants.push(...variants)
-    }))
+        totalVariants.push(...variants);
+      }),
+    );
 
     return {
       total: totalVariants.length,
-      variants: totalVariants
-    }
+      variants: totalVariants,
+    };
   }
 }
