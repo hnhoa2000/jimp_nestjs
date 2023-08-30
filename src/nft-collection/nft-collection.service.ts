@@ -7,14 +7,16 @@ import { Cache } from 'cache-manager';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MongoRepository } from 'typeorm';
 import { NftCollectionEntity } from './entity/nft-collection.entity';
+import { IpfsService } from 'src/ipfs/ipfs.service';
 
 @Injectable()
 export class NftCollectionService {
   constructor(
     @InjectRepository(NftCollectionEntity)
     private readonly nftCollectionEntity: MongoRepository<NftCollectionEntity>,
-    private readonly jimpService: JimpService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private readonly jimpService: JimpService,
+    private readonly ipfsService: IpfsService,
   ) {}
   private readonly logger = new Logger(NftCollectionService.name);
 
@@ -35,14 +37,15 @@ export class NftCollectionService {
       arrayPath,
       totalVariants[randomNumber].dna,
     );
+    const imagePath = await this.ipfsService.test(path);
     const newNftCollection = new NftCollectionEntity();
     newNftCollection.dna = totalVariants[randomNumber].dna;
-    newNftCollection.image = path;
+    newNftCollection.image = imagePath;
     newNftCollection.tokenId = data.tokenId;
     newNftCollection.metadata = data.metadata;
     newNftCollection.type = data.type;
     await this.nftCollectionEntity.save(newNftCollection);
-    return path;
+    return newNftCollection;
   }
 
   async readListFolder(parentFolder: string) {
