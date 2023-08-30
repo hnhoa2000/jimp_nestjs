@@ -1,7 +1,7 @@
 import { AppConfig } from '../config.type';
 
 const config: AppConfig = {
-  DATABASE_URL: 'mongodb://localhost:27017/jimp',
+  DATABASE_URL: 'mongodb://0.0.0.0:27017/jimp',
   REDIS_URL: 'redis://:@34.124.197.66:6000',
   MESEA_PORTAL_URL: 'https://staging-api.mesea.io',
   PUBLIC_URL: 'http://localhost:4000',
